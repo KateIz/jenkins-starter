@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+    triggers {
+        // pipeline musi zostać uruchomiony przynajmniej raz aby trigger został aktywowany
+        pollSCM 'H/2 * * * *'
+    }
+    options {
+        timestamps()
+    }
+    stages {
+        stage('zbuduj') {
+            steps {
+                sh './mvnw package'
+                junit 'target/surefire-reports/*.xml'
+                jacoco()
+            }
+        }
+        stage('przetestuj') {
+            steps {
+                echo "$WORKSPACE"
+            }
+        }
+        stage('przeskanuj zależności projektu') {
+            steps {
+                sh './mvnw dependency-check:aggregate'
+            }
+        }
+        stage('wdróż') {
+            steps {
+                echo 'wdrażam'
+                withCredentials([string(credentialsId: 'VkVSU046MDAwJpOqMxz4QXKFNRGHnJ8V539yi6prXuCQzHRbWRVyZiImAiwMrOdwvjM8H6hc0Kwj86w', variable: 'ZOOM_TOKEN'), string(credentialsId: 'https://applications.zoom.us/addon/v2/jenkins/webhooks/4ljoIzBTQGSeWHDSwIMW9g', variable: 'ZOOM_WEBHOOK')]) {
+                        zoomSend(
+                            authToken: env.ZOOM_TOKEN,
+                            jenkinsProxyUsed: true,
+                            message: "${JOB_BASE_NAME} ${env.BUILD_TAG} build successful after ${currentBuild.durationString}",
+                            webhookUrl: env.ZOOM_WEBHOOK)
+                }
+            }
+        }
+    }
+}
+
+
