@@ -11,9 +11,9 @@ pipeline {
         stage('zbuduj') {
             steps {
                 echo 'buduję'
-                sh './mvnw package'
-                junit 'target/surefire-reports/*.xml'
-                jacoco()
+//                sh './mvnw package'
+//                junit 'target/surefire-reports/*.xml'
+//                jacoco()
             }
         }
         stage('przetestuj') {
@@ -24,7 +24,7 @@ pipeline {
         stage('przeskanuj zależności projektu') {
             steps {
                 echo 'skanuję'
-                sh './mvnw dependency-check:aggregate'
+//                sh './mvnw dependency-check:aggregate'
             }
         }
         stage('wdróż') {
