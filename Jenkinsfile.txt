@@ -1,4 +1,4 @@
-@library ('moja-biblioteka') _
+@Library ('moja-biblioteka') _
 
 
 pipeline {
